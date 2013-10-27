@@ -3,7 +3,18 @@ class InfList(object):
         self.fn = fn
 
     def __getitem__(self, index):
-        return self.fn(index)
+        if isinstance(index, int):
+            return self.fn(index)
+        elif isinstance(index, slice):
+            start, stop, step = index.start or 0, index.stop, index.step or 1
+
+            if stop is not None:
+                return [self.fn(i) for i in range(start, stop, step)]
+            else:
+                return InfList(lambda i: self.fn(i * step + start))
+
+        else:
+            raise TypeError('List indexes must be integers or slices')
 
     def __contains__(self, item):
         i = 0
@@ -28,3 +39,7 @@ if __name__ == '__main__':
             assert value == 8
             break
 
+    assert l[2:4] == [4, 6]
+    assert l[:4] == [0, 2, 4, 6]
+    assert l[:4:2] == [0, 4]
+    assert type(l[1:]) is InfList
