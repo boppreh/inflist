@@ -64,8 +64,7 @@ lists, received {}: {}.'.format(type(index), index))
             i += 1
 
     def map(self, transformation):
-        return InfList(lambda i: transformation(self.fn(i)))
-        
+        return InfList(lambda i: transformation(self[i]))
 
 if __name__ == '__main__':
     l = InfList(lambda n: n * 2)
