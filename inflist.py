@@ -73,6 +73,9 @@ lists, received {}: {}.'.format(type(index), index))
                 self.fn == other.fn and
                 self.replacements == other.replacements)
 
+    def __str__(self):
+        return 'InfList[{},...]'.format(','.join(map(str, self[:5])))
+
 for binop in ['add', 'sub', 'mul', 'truediv', 'floordiv', 'lt', 'le',  'ge',
               'gt', 'and', 'or', 'lshift', 'rshift', 'pow', 'xor']:
     name = '__' + binop + '__'
@@ -124,3 +127,5 @@ if __name__ == '__main__':
 
     assert (l + 1)[:4] == [1, 3, 5, 7]
     assert (l / 2)[:4] == list(range(4))
+
+    assert str(l) == 'InfList[0,2,4,6,8,...]'
