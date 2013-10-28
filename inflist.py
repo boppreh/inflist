@@ -3,11 +3,14 @@ class InfList(object):
         self.fn = fn
         self.replacements = {}
 
-    def _interpret_index(self, index):
+    def _interpret_index(self, index, in_replacements=False):
         if isinstance(index, int):
             return (index,)
         elif isinstance(index, slice) and index.stop is not None:
             return range(index.start or 0, index.stop, index.step or 1)
+        elif isinstance(index, slice) and in_replacements:
+            stop = max(self.replacements)
+            return self._interpret_index(slice(index.start, stop, index.step))
         elif isinstance(index, list) or isinstance(index, tuple):
             return index
         else:
@@ -34,7 +37,7 @@ lists, received {}: {}.'.format(type(index), index))
             self.replacements[index] = value
             return
 
-        indexes = self._interpret_index(index)
+        indexes = self._interpret_index(index, True)
         try:
             for i in indexes:
                 self.replacements[i] = value[i]
@@ -43,7 +46,7 @@ lists, received {}: {}.'.format(type(index), index))
                 self.replacements[i] = value
 
     def __delitem__(self, index):
-        for i in self._interpret_index(index):
+        for i in self._interpret_index(index, True):
             del self.replacements[i]
 
     def __contains__(self, item):
