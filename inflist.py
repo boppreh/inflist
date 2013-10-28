@@ -1,7 +1,18 @@
 import operator
 
 class InfList(object):
+    """
+    Class for representing lists with infinite elements, thanks to lazy
+    evaluation. Supports indexing with integer indexes, slice notation or tuple
+    indexes, along with assignment (storing a dict of replaced items) and
+    overloads most operators working as a map.
+
+    Example: InfList(lambda i: i ** 2)
+    """
     def __init__(self, fn=lambda i: i):
+        """
+        Creates a new InfList where the item at index `i` is given by `fn(i)`.
+        """
         self.fn = fn
         self.replacements = {}
 
@@ -66,6 +77,10 @@ lists, received {}: {}.'.format(type(index), index))
             i += 1
 
     def map(self, transformation):
+        """
+        Returns a new InfList where the item at index `i` is
+        `transformation(self[i])`.
+        """
         return InfList(lambda i: transformation(self[i]))
 
     def __eq__(self, other):
@@ -76,15 +91,18 @@ lists, received {}: {}.'.format(type(index), index))
     def __str__(self):
         return 'InfList[{},...]'.format(','.join(map(str, self[:5])))
 
+
 for binop in ['add', 'sub', 'mul', 'truediv', 'floordiv', 'lt', 'le',  'ge',
               'gt', 'and', 'or', 'lshift', 'rshift', 'pow', 'xor']:
     name = '__' + binop + '__'
     function = getattr(operator, name)
+
     def op_method(self, other, f=function):
         if hasattr(other, '__getitem__'):
             return InfList(lambda i: f(self[i], other[i]))
         else:
             return InfList(lambda i: f(self[i], other))
+
     setattr(InfList, name, op_method)
 
 
