@@ -66,6 +66,12 @@ lists, received {}: {}.'.format(type(index), index))
     def map(self, transformation):
         return InfList(lambda i: transformation(self[i]))
 
+    def __eq__(self, other):
+        return (isinstance(other, InfList) and
+                self.fn == other.fn and
+                self.replacements == other.replacements)
+
+
 if __name__ == '__main__':
     l = InfList(lambda n: n * 2)
     assert l[10] == 20
