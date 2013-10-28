@@ -63,6 +63,10 @@ lists, received {}: {}.'.format(type(index), index))
             yield self.fn(i)
             i += 1
 
+    def map(self, transformation, start=0):
+        return InfList(lambda i: transformation(self.fn(start + i)))
+        
+
 if __name__ == '__main__':
     l = InfList(lambda n: n * 2)
     assert l[10] == 20
@@ -96,3 +100,5 @@ if __name__ == '__main__':
     assert l[15, 16] == [30, 32]
     del l[17:]
     assert l[15:20] == [30, 32, 34, 36, 38]
+
+    assert l.map(lambda x: x - 2)[:4] == [-2, 0, 2, 4]
