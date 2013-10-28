@@ -1,7 +1,7 @@
 import operator
 
 class InfList(object):
-    def __init__(self, fn):
+    def __init__(self, fn=lambda i: i):
         self.fn = fn
         self.replacements = {}
 
