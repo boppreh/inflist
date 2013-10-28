@@ -5,6 +5,7 @@ class InfList(object):
     def __getitem__(self, index):
         if isinstance(index, int):
             return self.fn(index)
+
         elif isinstance(index, slice):
             start, stop, step = index.start or 0, index.stop, index.step or 1
 
@@ -12,6 +13,9 @@ class InfList(object):
                 return [self.fn(i) for i in range(start, stop, step)]
             else:
                 return InfList(lambda i: self.fn(i * step + start))
+
+        elif isinstance(index, list):
+            return [self.fn(i) for i in index]
 
         else:
             raise TypeError('List indexes must be integers or slices')
@@ -42,4 +46,8 @@ if __name__ == '__main__':
     assert l[2:4] == [4, 6]
     assert l[:4] == [0, 2, 4, 6]
     assert l[:4:2] == [0, 4]
+
     assert type(l[1:]) is InfList
+    assert l[1:][0] == l[1]
+
+    assert l[[1, 2, 3]] == l[1:4]
