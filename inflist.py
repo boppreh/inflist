@@ -147,3 +147,5 @@ if __name__ == '__main__':
     assert (l / 2)[:4] == list(range(4))
 
     assert str(l) == 'InfList[0,2,4,6,8,...]'
+
+    assert InfList()[:10] == list(range(10))
