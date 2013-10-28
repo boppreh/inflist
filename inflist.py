@@ -1,10 +1,14 @@
 class InfList(object):
     def __init__(self, fn):
         self.fn = fn
+        self.replacements = {}
 
     def __getitem__(self, index):
         if isinstance(index, int):
-            return self.fn(index)
+            if index in self.replacements:
+                return self.replacements[index]
+            else:
+                return self.fn(index)
 
         elif isinstance(index, slice):
             start, stop, step = index.start or 0, index.stop, index.step or 1
@@ -14,11 +18,14 @@ class InfList(object):
             else:
                 return InfList(lambda i: self.fn(i * step + start))
 
-        elif isinstance(index, list):
+        elif isinstance(index, list) or isinstance(index, tuple):
             return [self.fn(i) for i in index]
 
         else:
             raise TypeError('List indexes must be integers or slices')
+
+    def __setitem__(self, index, value):
+        self.replacements[index] = value
 
     def __contains__(self, item):
         i = 0
@@ -50,4 +57,8 @@ if __name__ == '__main__':
     assert type(l[1:]) is InfList
     assert l[1:][0] == l[1]
 
+    assert l[(1, 2, 3)] == l[1:4]
     assert l[[1, 2, 3]] == l[1:4]
+
+    l[5] = 'a'
+    assert l[5] == 'a'
