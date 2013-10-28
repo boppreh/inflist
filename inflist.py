@@ -9,7 +9,7 @@ class InfList(object):
         elif isinstance(index, slice) and index.stop is not None:
             return range(index.start or 0, index.stop, index.step or 1)
         elif isinstance(index, slice) and in_replacements:
-            stop = max(self.replacements)
+            stop = max(self.replacements) + 1
             return self._interpret_index(slice(index.start, stop, index.step))
         elif isinstance(index, list) or isinstance(index, tuple):
             return index
@@ -30,7 +30,8 @@ lists, received {}: {}.'.format(type(index), index))
             # can use the replacement dictionary.
             return InfList(lambda i: self[i * step + start])
 
-        return [self.fn(i) for i in self._interpret_index(index)]
+        # Same here.
+        return [self[i] for i in self._interpret_index(index)]
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
@@ -41,7 +42,7 @@ lists, received {}: {}.'.format(type(index), index))
         try:
             for i in indexes:
                 self.replacements[i] = value[i]
-        except TypeError:
+        except (TypeError, IndexError):
             for i in indexes:
                 self.replacements[i] = value
 
@@ -86,3 +87,12 @@ if __name__ == '__main__':
     assert l[5] == 'a'
     del l[5]
     assert l[5] == 10
+
+    l[10:20] = 'b'
+    assert l[10:20] == ['b'] * 10
+    del l[10:15]
+    assert l[10:16] == [20, 22, 24, 26, 28, 'b']
+    del l[15, 16]
+    assert l[15, 16] == [30, 32]
+    del l[17:]
+    assert l[15:20] == [30, 32, 34, 36, 38]
