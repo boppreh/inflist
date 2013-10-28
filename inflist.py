@@ -1,3 +1,5 @@
+import operator
+
 class InfList(object):
     def __init__(self, fn):
         self.fn = fn
@@ -71,6 +73,17 @@ lists, received {}: {}.'.format(type(index), index))
                 self.fn == other.fn and
                 self.replacements == other.replacements)
 
+for binop in ['add', 'sub', 'mul', 'truediv', 'floordiv', 'lt', 'le',  'ge',
+              'gt', 'and', 'or', 'lshift', 'rshift', 'pow', 'xor']:
+    name = '__' + binop + '__'
+    function = getattr(operator, name)
+    def op_method(self, other, f=function):
+        if hasattr(other, '__getitem__'):
+            return InfList(lambda i: f(self[i], other[i]))
+        else:
+            return InfList(lambda i: f(self[i], other))
+    setattr(InfList, name, op_method)
+
 
 if __name__ == '__main__':
     l = InfList(lambda n: n * 2)
@@ -108,3 +121,6 @@ if __name__ == '__main__':
 
     assert l.map(lambda x: x - 2)[:4] == [-2, 0, 2, 4]
     assert l[1:].map(lambda x: x - 2)[:4] == [0, 2, 4, 6]
+
+    assert (l + 1)[:4] == [1, 3, 5, 7]
+    assert (l / 2)[:4] == list(range(4))
