@@ -27,6 +27,9 @@ class InfList(object):
     def __setitem__(self, index, value):
         self.replacements[index] = value
 
+    def __delitem__(self, index):
+        del self.replacements[index]
+
     def __contains__(self, item):
         i = 0
         while True:
@@ -62,3 +65,5 @@ if __name__ == '__main__':
 
     l[5] = 'a'
     assert l[5] == 'a'
+    del l[5]
+    assert l[5] == 10
