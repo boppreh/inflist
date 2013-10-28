@@ -3,6 +3,17 @@ class InfList(object):
         self.fn = fn
         self.replacements = {}
 
+    def _interpret_index(self, index):
+        if isinstance(index, int):
+            return (index,)
+        elif isinstance(index, slice) and index.stop is not None:
+            return range(index.start or 0, index.stop, index.step or 1)
+        elif isinstance(index, list) or isinstance(index, tuple):
+            return index
+        else:
+            raise TypeError('List indexes must be integers, finite slices or\
+lists, received {}: {}.'.format(type(index), index))
+
     def __getitem__(self, index):
         if isinstance(index, int):
             if index in self.replacements:
@@ -10,25 +21,30 @@ class InfList(object):
             else:
                 return self.fn(index)
 
-        elif isinstance(index, slice):
-            start, stop, step = index.start or 0, index.stop, index.step or 1
+        elif isinstance(index, slice) and index.stop is None:
+            start, step = index.start or 0, index.step or 1
+            # Use bracket notation instead of calling self.fn directly so we
+            # can use the replacement dictionary.
+            return InfList(lambda i: self[i * step + start])
 
-            if stop is not None:
-                return [self.fn(i) for i in range(start, stop, step)]
-            else:
-                return InfList(lambda i: self.fn(i * step + start))
-
-        elif isinstance(index, list) or isinstance(index, tuple):
-            return [self.fn(i) for i in index]
-
-        else:
-            raise TypeError('List indexes must be integers or slices')
+        return [self.fn(i) for i in self._interpret_index(index)]
 
     def __setitem__(self, index, value):
-        self.replacements[index] = value
+        if isinstance(index, int):
+            self.replacements[index] = value
+            return
+
+        indexes = self._interpret_index(index)
+        try:
+            for i in indexes:
+                self.replacements[i] = value[i]
+        except TypeError:
+            for i in indexes:
+                self.replacements[i] = value
 
     def __delitem__(self, index):
-        del self.replacements[index]
+        for i in self._interpret_index(index):
+            del self.replacements[i]
 
     def __contains__(self, item):
         i = 0
