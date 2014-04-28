@@ -48,10 +48,6 @@ lists, received {}: {}.'.format(type(index), index))
             return [self[i] for i in indexes]
 
     def __setitem__(self, index, value):
-        if isinstance(index, int):
-            self.replacements[index] = value
-            return
-
         indexes = self._interpret_index(index, True)
         try:
             for i in indexes:
