@@ -39,12 +39,13 @@ lists, received {}: {}.'.format(type(index), index))
 
         elif isinstance(index, slice) and index.stop is None:
             start, step = index.start or 0, index.step or 1
-            # Use bracket notation instead of calling self.fn directly so we
-            # can use the replacement dictionary.
             return InfList(lambda i: self[i * step + start])
 
-        # Same here.
-        return [self[i] for i in self._interpret_index(index)]
+        indexes = self._interpret_index(index)
+        if isinstance(indexes[0], bool):
+            return [self[i] for i, condition in enumerate(indexes) if condition]
+        else:
+            return [self[i] for i in indexes]
 
     def __setitem__(self, index, value):
         if isinstance(index, int):
@@ -149,3 +150,5 @@ if __name__ == '__main__':
     assert str(l) == 'InfList[0,2,4,6,8,...]'
 
     assert InfList()[:10] == list(range(10))
+
+    assert l[l > 10][:4] == [12, 14, 16, 18]
