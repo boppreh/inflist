@@ -27,7 +27,7 @@ class InfList(object):
         elif isinstance(index, list) or isinstance(index, tuple):
             return index
         else:
-            raise TypeError('List indexes must be integers, finite slices or\
+            raise TypeError('List indexes must be integers, finite slices or \
 lists, received {}: {}.'.format(type(index), index))
 
     def __getitem__(self, index):
